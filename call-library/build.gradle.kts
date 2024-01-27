@@ -1,6 +1,21 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
+}
+
+buildscript {
+   // ext.kotlin_version = "1.7.20"
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal() // << --- ADD This
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.1.3")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
+    }
 }
 
 android {
@@ -21,6 +36,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            consumerProguardFiles("proguard-rules.pro")
+            consumerProguardFiles("consumer-rules.pro")
         }
     }
     compileOptions {
@@ -29,6 +46,34 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17)) // << --- ADD This
+        }
+    }
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17 // << --- ADD This
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.nwudoebuka"
+            artifactId = "call-library"
+            version = "1.0.0"
+            pom {
+                description.set("First version release")
+            }
+        }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }
 
