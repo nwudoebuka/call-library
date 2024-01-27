@@ -65,7 +65,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.github.nwudoebuka"
             artifactId = "call-library"
-            version = "1.0.0"
+            version = "1.0"
             pom {
                 description.set("First version release")
             }
