@@ -74,6 +74,9 @@ afterEvaluate {
                 pom {
                     description = "First release"
                 }
+                repositories {
+                    mavenLocal()
+                }
                 artifact("$buildDir/outputs/aar/call-library-release.aar")
             }
         }
