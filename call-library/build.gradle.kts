@@ -10,6 +10,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")
         mavenLocal() // << --- ADD This
     }
 
