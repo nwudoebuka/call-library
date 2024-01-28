@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("maven-publish")
+    `maven-publish`
 }
 
 buildscript {
@@ -60,22 +61,42 @@ android {
 
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.github.nwudoebuka"
-            artifactId = "call-library"
-            version = "1.0.3"
-            pom {
-                description.set("First version release")
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+
+                groupId = "com.github.nwudoebuka"
+                artifactId = "call-library"
+                version = "1.0.4"
+                pom {
+                    description = "First release"
+                }
+                artifact("$buildDir/outputs/aar/call-library-release.aar")
             }
         }
     }
-
-    repositories {
-        mavenLocal()
-    }
 }
+
+
+//publishing {
+//    publications {
+//        create<MavenPublication>("maven") {
+//            groupId = "com.github.nwudoebuka"
+//            artifactId = "call-library"
+//            version = "1.0.3"
+//            pom {
+//                description.set("First version release")
+//            }
+//        }
+//    }
+//
+//    repositories {
+//        mavenLocal()
+//    }
+//}
 
 dependencies {
 
