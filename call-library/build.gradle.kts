@@ -71,7 +71,7 @@ afterEvaluate {
 
                 groupId = "com.github.nwudoebuka"
                 artifactId = "call-library"
-                version = "1.0.9"
+                version = "2.0.0"
                 pom {
                     description = "First release"
                 }
