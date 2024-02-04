@@ -78,7 +78,7 @@ afterEvaluate {
                 repositories {
                     mavenLocal()
                 }
-                artifact("$buildDir/outputs/aar/call-library-release.aar")
+               // artifact("$buildDir/outputs/aar/call-library-release.aar")
             }
         }
     }

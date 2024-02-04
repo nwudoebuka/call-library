@@ -7,4 +7,14 @@
     <version>1.0.4</version>
     <packaging>pom</packaging>
     <description>First Call SDK version release</description>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven-shade-plugin</id>
+            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
