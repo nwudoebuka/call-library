@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:7.1.3")
+        classpath("com.android.tools.build:gradle:8.1.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
     }
 }
@@ -71,9 +71,9 @@ afterEvaluate {
 
                 groupId = "com.github.nwudoebuka"
                 artifactId = "call-library"
-                version = "2.0.0"
+                version = "2.0.1"
                 pom {
-                    //description = "First release"
+                    description = "First release"
                 }
                 repositories {
                     mavenLocal()
