@@ -43,22 +43,22 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
-//    java {
-//        toolchain {
-//            languageVersion.set(JavaLanguageVersion.of(17)) // << --- ADD This
-//        }
-//    }
-//    java {
-//        sourceCompatibility = JavaVersion.VERSION_17 // << --- ADD This
-//        targetCompatibility = JavaVersion.VERSION_17
-//    }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17)) // << --- ADD This
+        }
+    }
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17 // << --- ADD This
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 
 }
 
@@ -71,7 +71,7 @@ afterEvaluate {
 
                 groupId = "com.github.nwudoebuka"
                 artifactId = "call-library"
-                version = "2.0.2"
+                version = "2.0.3"
                 pom {
                     description = "First release"
                 }
