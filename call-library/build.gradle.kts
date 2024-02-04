@@ -73,7 +73,7 @@ afterEvaluate {
                 artifactId = "call-library"
                 version = "2.0.0"
                 pom {
-                    description = "First release"
+                    //description = "First release"
                 }
                 repositories {
                     mavenLocal()
