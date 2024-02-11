@@ -11,7 +11,7 @@ class Starter(appName: String) {
         Log.i(TAG,appName)
 
     }
-private fun displayAfterCallScreen(context: Context){
+fun displayAfterCallScreen(context: Context){
     val intent: Intent = Intent(context, MainActivity::class.java)
     context.startActivity(intent)
 }
