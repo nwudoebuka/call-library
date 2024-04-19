@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Phone Call SDK</string>
+    <string name="app_name">PhoneCallSDK</string>
+    <string name="private_num">Private number</string>
+    <string name="duration">Duration</string>
 </resources>

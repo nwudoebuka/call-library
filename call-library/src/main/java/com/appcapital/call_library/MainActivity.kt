@@ -1,11 +1,16 @@
 package com.appcapital.call_library
 
+import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,36 +18,37 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.GestureDetector
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
-import android.graphics.drawable.GradientDrawable
 import android.widget.TextView
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import android.view.Gravity
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.appcapital.call_library.utils.SharedPreferencesHelper
 import java.util.Timer
 import java.util.TimerTask
-import android.graphics.Color
-import android.widget.Button
-import androidx.core.view.marginTop
 
-class MainActivity : ComponentActivity() {
-    var isOverlayPermissionScreenOpen:Boolean = false
 
+class MainActivity : AppCompatActivity() {
+    var isOverlayPermissionScreenOpen: Boolean = false
+    private lateinit var greyView: View
+    private lateinit var linearLayout: LinearLayout
+    private lateinit var gestureDetector: GestureDetector
+    private lateinit var overlayView: FrameLayout
     private var getContent =
         this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            Log.d("RecordingObserver", "onCreate: RESULT OK"+result.resultCode)
+            Log.d("RecordingObserver", "onCreate: RESULT OK" + result.resultCode)
             finish()
             if (result.resultCode == Activity.RESULT_OK) {
                 Log.d("RecordingObserver", "onCreate: RESULT OK")
@@ -50,18 +56,6 @@ class MainActivity : ComponentActivity() {
             }
             // finishAndRemoveTask()
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        displayAfterCallScreen(this)
-        checkWhenUserAllowsOverlayPermission()
-    }
-
 
     var handler = Handler()
     var checkOverlaySetting: Runnable = object : Runnable {
@@ -81,8 +75,62 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestPermissions()
+        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
+                // Handle tap gesture here, for example, dismiss the overlay
+                Log.d("REMOVEOVERLAY", "remove over lay");
+                dismissOverlay()
+                return true
+            }
+        })
 
-    private fun checkWhenUserAllowsOverlayPermission(){
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                windowManager.removeView(overlayView)
+                finish()
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
+    }
+
+    private fun requestPermissions(){
+        if (applicationContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission has not been granted, therefore prompt the user to grant permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                1000
+            )
+        }
+
+        if (applicationContext.checkSelfPermission(Manifest.permission.PROCESS_OUTGOING_CALLS)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission has not been granted, therefore prompt the user to grant permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.PROCESS_OUTGOING_CALLS),
+                2000
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        displayAfterCallScreen(this)
+        checkWhenUserAllowsOverlayPermission()
+    }
+
+    private fun dismissOverlay() {
+        // Remove the overlay from the rootView
+        windowManager.removeView(overlayView)
+    }
+
+    private fun checkWhenUserAllowsOverlayPermission() {
         val timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
@@ -100,13 +148,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun displayAfterCallScreen(context: Context) {
-        Log.d("timerRunner", "saw runner "+Settings.canDrawOverlays(this@MainActivity))
+        Log.d("timerRunner", "saw runner " + Settings.canDrawOverlays(this@MainActivity))
 
         if (!Settings.canDrawOverlays(this)) {
-
-
             addFullScreenGreyView()
-        }else{
+        } else {
             showPermissionInstructionOverLay(context)
         }
     }
@@ -116,7 +162,7 @@ class MainActivity : ComponentActivity() {
         val alphaValue = 150 // Adjust as needed
 
         // Create a translucent grey view
-        val greyView = FrameLayout(this).apply {
+        greyView = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -140,6 +186,7 @@ class MainActivity : ComponentActivity() {
                     ).apply {
                         topMargin = 12 // Set the top margin in pixels (adjust as needed)
                     }
+                    setTextColor(Color.BLACK)
                     text = "You need to allow Overlay permission"
                     gravity = Gravity.CENTER
                     textSize = 18f // Adjust text size as needed
@@ -189,8 +236,80 @@ class MainActivity : ComponentActivity() {
         rootView.addView(greyView)
     }
 
+
+    private fun createLinearLayout(context: Context): LinearLayout {
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.TOP
+            // addView(textView)
+            //addView(toggleButton)
+            val appConfig = SharedPreferencesHelper.getAppConfig(context)
+            val inflatedView = inflateXmlLayout(context, R.layout.after_call_display)
+            val closeBtn: ImageView? = inflatedView.findViewById(R.id.close_btn)
+            val goToAppTextView: TextView? = inflatedView.findViewById(R.id.go_to_app_text)
+            val appIconImageView: ImageView? = inflatedView.findViewById(R.id.app_icon)
+            val appInfoView: LinearLayout? = inflatedView.findViewById(R.id.continue_to_app_lin)
+
+            appInfoView?.setBackgroundColor(appConfig.primaryColor)
+            appIconImageView?.setImageResource(appConfig.appIcon)
+
+            goToAppTextView?.text = appConfig.appName
+            appInfoView?.setOnClickListener {
+                openApp(
+                    appConfig.packageName,
+                    appConfig.classEntryName
+                )
+            }
+            closeBtn?.setOnClickListener {
+                finish()
+                windowManager.removeView(overlayView)
+            }
+            addView(inflatedView)
+            background = createRoundedCornerDrawable(context, Color.WHITE, 40f)
+            val paddingValue = 20.dp
+            setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
+        }
+    }
+
+    private fun openApp(packageName: String, classEntryName: String) {
+           finish()
+           windowManager.removeView(overlayView)
+           Log.d("ENTRYCLASSNAME","$classEntryName")
+//           val i = Intent()
+//           i.setAction(Intent.ACTION_VIEW)
+//           i.setClassName(
+//               packageName,
+//               "screen.recorder.MainActivity"
+//           )
+//           startActivity(i)
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.setComponent(
+            ComponentName(
+                packageName,
+                classEntryName
+            )
+        )
+        startActivity(intent)
+//        var intent = packageManager.getLaunchIntentForPackage(classEntryName)
+//        if (intent != null) {
+//            // We found the activity now start the activity
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            startActivity(intent)
+//        } else {
+//            // Bring user to the market or let them choose an app?
+//            intent = Intent(Intent.ACTION_VIEW)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.setData(Uri.parse("market://details?id=" + "com.package.name"))
+//            startActivity(intent)
+//        }
+    }
+
     // Function to create a rounded corner drawable
-    fun createRoundedCornerDrawable(context: Context, backgroundColor: Int, cornerRadius: Float): GradientDrawable {
+    fun createRoundedCornerDrawable(
+        context: Context,
+        backgroundColor: Int,
+        cornerRadius: Float
+    ): GradientDrawable {
         val drawable = GradientDrawable()
         drawable.shape = GradientDrawable.RECTANGLE
         drawable.setColor(backgroundColor)
@@ -198,14 +317,23 @@ class MainActivity : ComponentActivity() {
         return drawable
     }
 
-    private fun showPermissionInstructionOverLay(context: Context){
+    override fun onBackPressed() {
+        Log.d("BACKPRESSED", "yes")
+        finish()
+        windowManager.removeView(overlayView)
+    }
 
-        val overlayView = FrameLayout(context).apply {
+    fun inflateXmlLayout(context: Context, layoutResId: Int): View {
+        return LayoutInflater.from(context).inflate(layoutResId, null)
+    }
+
+    private fun showPermissionInstructionOverLay(context: Context) {
+
+        overlayView = FrameLayout(context).apply {
             val paddingValue = 70.dp
             setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
         }
         val backgroundColor = Color.argb(150, 0, 0, 0)
-        val contentViewColor = Color.WHITE
         overlayView.setBackgroundColor(backgroundColor)
 
         val layoutParams = WindowManager.LayoutParams(
@@ -239,26 +367,24 @@ class MainActivity : ComponentActivity() {
 
         // val toggleButton = Switch(context).apply {}
         // toggleButton.isEnabled = false
-        val linearLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.BOTTOM
-            // addView(textView)
-            //addView(toggleButton)
-            background = createRoundedCornerDrawable(context, contentViewColor, 40f)
-            val paddingValue = 20.dp
-            setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
+        linearLayout = createLinearLayout(this)
+        linearLayout.setOnTouchListener { _, event ->
+//            Log.d("REMOVEOVERLAY","remove over lay");
+//            windowManager.removeView(overlayView)
+            true
         }
 
         linearLayout.layoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT
         )
+
         overlayView.addView(linearLayout)
         windowManager.addView(overlayView, layoutParams)
 
         Handler(Looper.getMainLooper()).postDelayed(
             {
-                // windowManager.removeView(overlayView)
+//               windowManager.removeView(overlayView)
             },
             4000 // value in milliseconds
         )
@@ -266,4 +392,5 @@ class MainActivity : ComponentActivity() {
     }
 
 }
+
 val Int.dp: Int get() = (this / Resources.getSystem().displayMetrics.density).toInt()
