@@ -3,9 +3,7 @@ package com.appcapital.call_library
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.appcapital.call_library.config.AfterCallConfig
-import com.appcapital.call_library.service.PhoneStateReceiver
 import com.appcapital.call_library.utils.SharedPreferencesHelper
 
 class Starter(appConfig: AfterCallConfig,context: Context) {
@@ -15,8 +13,8 @@ class Starter(appConfig: AfterCallConfig,context: Context) {
 
     }
 fun displayAfterCallScreen(context: Context){
-//    val intent: Intent = Intent(context, MainActivity::class.java)
-//    context.startActivity(intent)
+    val intent: Intent = Intent(context, MainActivity::class.java)
+    context.startActivity(intent)
 }
 
 }

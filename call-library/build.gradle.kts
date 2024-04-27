@@ -11,7 +11,7 @@ buildscript {
         google()
         mavenCentral()
         maven("https://jitpack.io")
-        mavenLocal() // << --- ADD This
+        mavenLocal()
     }
 
     dependencies {
@@ -56,7 +56,7 @@ android {
         }
     }
     java {
-        sourceCompatibility = JavaVersion.VERSION_17 // << --- ADD This
+        sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
@@ -117,5 +117,10 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    //APPLOVIN
+    implementation("com.applovin:applovin-sdk:12.4.2")
+    implementation("com.google.android.gms:play-services-ads-identifier:18.0.1")
+    //AD MOB
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
 }
 apply(plugin = "maven-publish")

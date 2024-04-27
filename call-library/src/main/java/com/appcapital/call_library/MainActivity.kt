@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -36,9 +37,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.appcapital.call_library.utils.SharedPreferencesHelper
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import java.util.Timer
 import java.util.TimerTask
-
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.nativead.NativeAdView
 
 class MainActivity : AppCompatActivity() {
     var isOverlayPermissionScreenOpen: Boolean = false
@@ -46,6 +56,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var linearLayout: LinearLayout
     private lateinit var gestureDetector: GestureDetector
     private lateinit var overlayView: FrameLayout
+    val outMetrics = DisplayMetrics()
+    lateinit var adSize: AdSize
     private var getContent =
         this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             Log.d("RecordingObserver", "onCreate: RESULT OK" + result.resultCode)
@@ -77,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
         requestPermissions()
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
@@ -86,7 +99,8 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
-
+        val windowManager = this.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        windowManager.defaultDisplay.getMetrics(outMetrics)
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 windowManager.removeView(overlayView)
@@ -97,6 +111,17 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun getAdSize(context: Context,adWidthPixels: Float): AdSize{
+        val display = windowManager.defaultDisplay
+        val outMetrics = DisplayMetrics()
+        display.getMetrics(outMetrics)
+        val density = outMetrics.density
+
+        val screenWidth = outMetrics.widthPixels
+        val adWidth = ((screenWidth / density).toInt() - 40)
+        Log.d("ADD_STAT_WIDTH","$screenWidth --- ${density}")
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
     private fun requestPermissions(){
         if (applicationContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
             != PackageManager.PERMISSION_GRANTED) {
@@ -153,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         if (!Settings.canDrawOverlays(this)) {
             addFullScreenGreyView()
         } else {
-            showPermissionInstructionOverLay(context)
+            showAfterCallOverLay(context)
         }
     }
 
@@ -248,11 +273,47 @@ class MainActivity : AppCompatActivity() {
             val closeBtn: ImageView? = inflatedView.findViewById(R.id.close_btn)
             val goToAppTextView: TextView? = inflatedView.findViewById(R.id.go_to_app_text)
             val appIconImageView: ImageView? = inflatedView.findViewById(R.id.app_icon)
-            val appInfoView: LinearLayout? = inflatedView.findViewById(R.id.continue_to_app_lin)
 
+            val appInfoView: LinearLayout? = inflatedView.findViewById(R.id.continue_to_app_lin)
+            val adOneView: LinearLayout = inflatedView.findViewById(R.id.ad_one)
+            val adTwoView: LinearLayout = inflatedView.findViewById(R.id.ad_two)
+
+// Define the desired height in pixels (you can change this value as needed)
+//            val screenHeight = DisplayMetrics().heightPixels
+//            val adTwoHeight = screenHeight / 4
+
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val displayMetrics = DisplayMetrics()
+
+// Get display metrics of the screen
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+
+// Calculate the height (one-fourth of screen height)
+            val screenHeight = displayMetrics.heightPixels
+            val quarterScreenHeight = screenHeight / 3
+
+            Log.d("adTwoHeight","is $quarterScreenHeight")
+            val existingLayoutParams = adTwoView.layoutParams
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                quarterScreenHeight
+            )
+            layoutParams.setMargins(0, 8, 0, 12)
+
+//            layoutParams.height = desiredHeightInPixels
+            adTwoView.layoutParams = layoutParams
+//
+//            layoutParams.height = layoutParams
+            val adsParentContainer = inflatedView.findViewById<LinearLayout>(R.id.ad_lin)
+            var adWidthPixels = adsParentContainer.width.toFloat()
+          //  if (adWidthPixels == 0f) {
+                adWidthPixels = outMetrics.widthPixels.toFloat()
+           // }
+           adSize = getAdSize(this@MainActivity,adWidthPixels)
             appInfoView?.setBackgroundColor(appConfig.primaryColor)
             appIconImageView?.setImageResource(appConfig.appIcon)
-
+            loadBanner(adOneView)
+            loadNativeAd(adTwoView)
             goToAppTextView?.text = appConfig.appName
             appInfoView?.setOnClickListener {
                 openApp(
@@ -323,11 +384,90 @@ class MainActivity : AppCompatActivity() {
         windowManager.removeView(overlayView)
     }
 
+    private fun loadBanner(adViewHolder: LinearLayout) {
+
+        // Create a new ad view.
+        val adView = AdView(this)
+        adView.setAdSize(adSize)
+        adView.adUnitId = "ca-app-pub-3940256099942544/9214589741"
+
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        adView.loadAd(adRequest)
+
+        adView.adListener = object: AdListener() {
+            override fun onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            override fun onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+
+            override fun onAdFailedToLoad(adError : LoadAdError) {
+                // Code to be executed when an ad request fails.
+                Log.d("ADD_STAT","FAILED $adError")
+            }
+
+            override fun onAdImpression() {
+                // Code to be executed when an impression is recorded
+                // for an ad.
+                Log.d("ADD_STAT","CLICKED")
+            }
+
+            override fun onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                Log.d("ADD_STAT","LOADED")
+                adViewHolder.addView(adView)
+            }
+
+            override fun onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+                Log.d("ADD_STAT","OPENED")
+            }
+        }
+    }
+    private fun loadNativeAd(adViewHolder: LinearLayout) {
+      //  val adContainer: FrameLayout = itemView.findViewById(R.id.ad_frame_container)
+        val adLoader = AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110")
+            .forNativeAd { ad : NativeAd ->
+                // Show the ad.
+                Log.d("nativeAdSuccess","True")
+                val adView = layoutInflater
+                    .inflate(R.layout.ad_layout, null) as NativeAdView
+                populateAd(ad, adView, adViewHolder)
+                //adViewHolder.addView(ad.)
+            }
+            .withAdListener(object : AdListener() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    // Handle the failure by logging, altering the UI, and so on.
+                    Log.d("nativeAdFail","${adError.responseInfo}")
+                }
+            })
+            .withNativeAdOptions(NativeAdOptions.Builder()
+                // Methods in the NativeAdOptions.Builder class can be
+                // used here to specify individual options settings.
+                .build())
+            .build()
+        adLoader.loadAd(AdRequest.Builder().build())
+    }
+
+    private fun populateAd(ad: NativeAd, adView: NativeAdView, adViewHolder: LinearLayout){
+        val headlineView = adView.findViewById<TextView>(R.id.ad_headline)
+        headlineView.text = ad.headline
+        adView.headlineView = headlineView
+        adViewHolder.addView(adView)
+    }
+
     fun inflateXmlLayout(context: Context, layoutResId: Int): View {
         return LayoutInflater.from(context).inflate(layoutResId, null)
     }
 
-    private fun showPermissionInstructionOverLay(context: Context) {
+    private fun showAfterCallOverLay(context: Context) {
 
         overlayView = FrameLayout(context).apply {
             val paddingValue = 70.dp
