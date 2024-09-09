@@ -1,5 +1,7 @@
 package com.appcapital.call_library
 
+import AftercallViewPageAdapter
+import androidx.core.content.ContextCompat
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
@@ -49,6 +51,9 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import androidx.viewpager2.widget.ViewPager2
 
 class MainActivity : AppCompatActivity() {
     var isOverlayPermissionScreenOpen: Boolean = false
@@ -56,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var linearLayout: LinearLayout
     private lateinit var gestureDetector: GestureDetector
     private lateinit var overlayView: FrameLayout
+    private lateinit var afterCallInflatedView: View
     val outMetrics = DisplayMetrics()
     lateinit var adSize: AdSize
     private var getContent =
@@ -89,12 +95,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        afterCallInflatedView = inflateXmlLayout(this, R.layout.after_call_display)
+        setUpViewPager()
         MobileAds.initialize(this) {}
         requestPermissions()
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
-                // Handle tap gesture here, for example, dismiss the overlay
-                Log.d("REMOVEOVERLAY", "remove over lay");
                 dismissOverlay()
                 return true
             }
@@ -110,7 +116,26 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
     }
-
+    private fun setUpViewPager(){
+        val tabLayout = afterCallInflatedView.findViewById<TabLayout>(R.id.tab_layout)
+        val viewPager = afterCallInflatedView.findViewById<ViewPager2>(R.id.view_pager)
+        viewPager.offscreenPageLimit = 3
+        val adapter = AftercallViewPageAdapter(this@MainActivity)
+        viewPager.adapter = adapter
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.icon  = when (position) {
+                0 -> ContextCompat.getDrawable(this, android.R.drawable.ic_menu_compass)
+                1 -> ContextCompat.getDrawable(this, android.R.drawable.ic_menu_compass)
+                2 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)
+                3 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)
+                else -> null
+            }
+        }.attach()
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+            }
+        })
+    }
     private fun getAdSize(context: Context,adWidthPixels: Float): AdSize{
         val display = windowManager.defaultDisplay
         val outMetrics = DisplayMetrics()
@@ -176,13 +201,13 @@ class MainActivity : AppCompatActivity() {
         Log.d("timerRunner", "saw runner " + Settings.canDrawOverlays(this@MainActivity))
 
         if (!Settings.canDrawOverlays(this)) {
-            addFullScreenGreyView()
+            permissionRequestView()
         } else {
             showAfterCallOverLay(context)
         }
     }
 
-    private fun addFullScreenGreyView() {
+    private fun permissionRequestView() {
         // Set the alpha value for the translucent effect (0 to 255)
         val alphaValue = 150 // Adjust as needed
 
@@ -269,14 +294,14 @@ class MainActivity : AppCompatActivity() {
             // addView(textView)
             //addView(toggleButton)
             val appConfig = SharedPreferencesHelper.getAppConfig(context)
-            val inflatedView = inflateXmlLayout(context, R.layout.after_call_display)
-            val closeBtn: ImageView? = inflatedView.findViewById(R.id.close_btn)
-            val goToAppTextView: TextView? = inflatedView.findViewById(R.id.go_to_app_text)
-            val appIconImageView: ImageView? = inflatedView.findViewById(R.id.app_icon)
 
-            val appInfoView: LinearLayout? = inflatedView.findViewById(R.id.continue_to_app_lin)
-            val adOneView: LinearLayout = inflatedView.findViewById(R.id.ad_one)
-            val adTwoView: LinearLayout = inflatedView.findViewById(R.id.ad_two)
+            val closeBtn: ImageView? = afterCallInflatedView.findViewById(R.id.close_btn)
+            val goToAppTextView: TextView? = afterCallInflatedView.findViewById(R.id.go_to_app_text)
+            val appIconImageView: ImageView? = afterCallInflatedView.findViewById(R.id.app_icon)
+
+            val appInfoView: LinearLayout? = afterCallInflatedView.findViewById(R.id.continue_to_app_lin)
+            val adOneView: LinearLayout = afterCallInflatedView.findViewById(R.id.ad_one)
+            val adTwoView: LinearLayout = afterCallInflatedView.findViewById(R.id.ad_two)
 
 // Define the desired height in pixels (you can change this value as needed)
 //            val screenHeight = DisplayMetrics().heightPixels
@@ -304,7 +329,7 @@ class MainActivity : AppCompatActivity() {
             adTwoView.layoutParams = layoutParams
 //
 //            layoutParams.height = layoutParams
-            val adsParentContainer = inflatedView.findViewById<LinearLayout>(R.id.ad_lin)
+            val adsParentContainer = afterCallInflatedView.findViewById<LinearLayout>(R.id.ad_lin)
             var adWidthPixels = adsParentContainer.width.toFloat()
           //  if (adWidthPixels == 0f) {
                 adWidthPixels = outMetrics.widthPixels.toFloat()
@@ -325,7 +350,7 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 windowManager.removeView(overlayView)
             }
-            addView(inflatedView)
+            addView(afterCallInflatedView)
             background = createRoundedCornerDrawable(context, Color.WHITE, 40f)
             val paddingValue = 20.dp
             setPadding(paddingValue, paddingValue, paddingValue, paddingValue)
@@ -350,7 +375,7 @@ class MainActivity : AppCompatActivity() {
                 classEntryName
             )
         )
-        startActivity(intent)
+//        startActivity(intent)
 //        var intent = packageManager.getLaunchIntentForPackage(classEntryName)
 //        if (intent != null) {
 //            // We found the activity now start the activity

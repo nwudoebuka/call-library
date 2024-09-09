@@ -1,6 +1,7 @@
 package com.appcapital.call_library.config
 
 import android.app.Activity
+import android.view.View
 
 data class AfterCallConfig(
     val packageName: String,
@@ -8,5 +9,6 @@ data class AfterCallConfig(
     val appName: String,
     val appIcon: Int,
     val primaryColor: Int,
-    val secondaryColor: Int
+    val secondaryColor: Int,
+    val customView: Int
 )

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="8dp"
+    tools:context=".aftercall.WeatherCardFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- RecyclerView to fill the rest of the screen -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/news_rec"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+        <!-- Ad Card pinned to the bottom -->
+        <LinearLayout
+            android:id="@+id/ad_card"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/info_card_bg"
+            android:orientation="vertical">
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,9 @@
+<resources>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_caller_to_contact">Add caller to your contact</string>
+    <string name="private_number">Private number</string>
+    <string name="duration">Duration</string>
+    <string name="messages">Messages</string>
+    <string name="feels_like">Feels like</string>
+</resources>
