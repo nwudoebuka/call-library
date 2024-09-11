@@ -2,8 +2,10 @@
 package com.appcapital.call_library.aftercall
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -23,6 +25,7 @@ import com.appcapital.call_library.viewmodel.AfterCallViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import com.appcapital.call_library.api.Result
 import com.appcapital.call_library.model.CurrentConditions
+import com.appcapital.call_library.model.NewsArticle
 import com.appcapital.call_library.model.NewsResponse
 import com.appcapital.call_library.model.WeatherResponse
 import com.appcapital.call_library.utils.Utils
@@ -200,7 +203,15 @@ class WeatherCardFragment : Fragment() {
                             data.articles,  // Initially empty news list
                             weatherData,         // Initially no weather data
                             appCustomView,
-                            userLocation
+                            userLocation,
+                          object : NewsAdapter.OnItemClickListener {
+                              override fun onItemClick(position: Int, newsArticle: NewsArticle) {
+                                  val intent = Intent(Intent.ACTION_VIEW).apply {
+                                      this.data = Uri.parse(newsArticle.url) // Assuming 'url' is a field in NewsArticle
+                                  }
+                                  context?.startActivity(intent)
+                              }
+                          }
                         )
                      //   binding.newsRec.adapter = newsAdapter
                         binding.newsRec.apply {

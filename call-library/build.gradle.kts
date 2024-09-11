@@ -12,6 +12,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
         maven("https://jitpack.io")
         maven("https://plugins.gradle.org/m2/")
         mavenLocal()
@@ -130,8 +131,6 @@ dependencies {
     //APPLOVIN
     implementation("com.applovin:applovin-sdk:12.4.2")
     implementation("com.google.android.gms:play-services-ads-identifier:18.0.1")
-    //AD MOB
-    implementation("com.google.android.gms:play-services-ads:23.0.0")
     //NETWORK
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -150,6 +149,8 @@ dependencies {
     // NETWORK IMAGE
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
+    //Ad
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
 }
 apply(plugin = "maven-publish")
 apply(plugin = "com.google.dagger.hilt.android")

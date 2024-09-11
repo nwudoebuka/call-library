@@ -75,7 +75,7 @@ class AfterCallActivity : AppCompatActivity() {
         viewPager.adapter = adapter
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.icon  = when (position) {
-                0 -> ContextCompat.getDrawable(this, android.R.drawable.ic_menu_compass)
+                0 -> ContextCompat.getDrawable(this, R.drawable.ic_after_call_dash)
                 1 -> ContextCompat.getDrawable(this, android.R.drawable.ic_menu_compass)
                 2 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)
                 3 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)

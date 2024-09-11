@@ -37,7 +37,7 @@
     <LinearLayout
         android:id="@+id/controls_lin"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="100dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/number_lin"
         android:background="@drawable/call_control_background"
@@ -99,16 +99,18 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginTop="10dp"
             android:background="@color/light_gray"
             />
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:tabIndicatorColor="@color/black"
+            android:layout_height="40dp"
+            android:layout_marginTop="7dp"
+            app:tabIndicatorColor="@color/primary_text"
             app:tabSelectedTextColor="@color/blue"
-            app:tabTextColor="@color/gray" />
+            app:tabTextColor="@color/gray"
+            />
     </LinearLayout>
     <ImageView
         android:id="@+id/user_dp"
@@ -132,7 +134,7 @@
      >
      <androidx.viewpager2.widget.ViewPager2
          android:id="@+id/view_pager"
-         android:layout_marginTop="128dp"
+         android:layout_marginTop="150dp"
          android:layout_width="match_parent"
          android:layout_height="match_parent"
          android:layout_marginBottom="8dp"

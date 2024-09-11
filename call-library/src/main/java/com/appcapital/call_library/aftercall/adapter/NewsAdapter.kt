@@ -21,6 +21,7 @@ class NewsAdapter(
     private val weatherData: List<CurrentConditions>?,
     private val customView: View?,
     private val userLocation: Pair<String?, String?>?,
+    private val itemClickListener: OnItemClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // Define view types
@@ -29,7 +30,9 @@ class NewsAdapter(
     private val AD_ITEM = 2
     private val TYPE_NEWS_ITEM = 3
     private val TAG: String = NewsAdapter::class.simpleName.toString()
-
+    interface OnItemClickListener {
+        fun onItemClick(position: Int, newsArticle: NewsArticle)
+    }
     override fun getItemViewType(position: Int): Int {
         Log.d(TAG, "position is : $position ---- $itemCount")
         return if (position == 0) {
@@ -106,6 +109,9 @@ class NewsAdapter(
                             .load(newsArticle.urlToImage)
                             .centerCrop()
                             .into(holder.image)
+                        holder.itemView.setOnClickListener {
+                           itemClickListener.onItemClick(adjustedPosition, newsArticle)
+                        }
                        // holder.image
                         // Bind other news item views as needed
                     }
