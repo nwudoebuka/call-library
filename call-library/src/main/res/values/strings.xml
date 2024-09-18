@@ -5,5 +5,12 @@
     <string name="private_number">Private number</string>
     <string name="duration">Duration</string>
     <string name="messages">Messages</string>
+    <string name="messages_option">Message option text</string>
+    <string name="I_am_busy">I am Busy</string>
+    <string name="let_me_call_back">Let me call you back</string>
+    <string name="in_a_meeting">In a meeting</string>
+    <string name="cant_talk">Can\'t talk right now</string>
     <string name="feels_like">Feels like</string>
+    <string name="send">Send</string>
+    <string name="select_quick_message">Select a quick message option</string>
 </resources>

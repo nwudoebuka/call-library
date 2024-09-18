@@ -20,6 +20,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.ViewModelProvider
+import com.appcapital.call_library.service.PhoneCallService
 
 @AndroidEntryPoint
 class AfterCallActivity : AppCompatActivity() {
@@ -33,6 +34,9 @@ class AfterCallActivity : AppCompatActivity() {
         binding = ActivityAfterCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
         phoneNumber = SharedPreferencesHelper.getCalledPhoneNumber(this)
+        val appConfig = SharedPreferencesHelper.getAppConfig(this)
+        binding.appIcon.setImageResource(appConfig.appIcon)
+
         val callDuration = intent.getStringExtra("CALL_DURATION")
          binding.callDuration.text = "${getString(R.string.duration)} ${callDuration}"
         binding.callButton.setOnClickListener {
@@ -43,6 +47,12 @@ class AfterCallActivity : AppCompatActivity() {
 
         setUpViewPager()
         checkAndRequestContactsPermission()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val serviceIntent = Intent(this, PhoneCallService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
     }
 
     override fun onRequestPermissionsResult(
@@ -76,7 +86,7 @@ class AfterCallActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.icon  = when (position) {
                 0 -> ContextCompat.getDrawable(this, R.drawable.ic_after_call_dash)
-                1 -> ContextCompat.getDrawable(this, android.R.drawable.ic_menu_compass)
+                1 -> ContextCompat.getDrawable(this, R.drawable.ic_message)
                 2 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)
                 3 -> ContextCompat.getDrawable(this, R.drawable.ic_more_option)
                 else -> null
