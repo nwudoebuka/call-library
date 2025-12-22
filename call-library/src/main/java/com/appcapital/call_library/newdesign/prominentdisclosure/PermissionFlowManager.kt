@@ -100,12 +100,6 @@ val permissionQueue = listOfNotNull(
         R.drawable.ic_notif
     ),
     PermissionConfig(
-        Manifest.permission.READ_SMS,
-        "Would you like to \nAllow SMS Access",
-        "For tailored effect allow us access your phone sms for quick response",
-        R.drawable.ic_message
-    ),
-    PermissionConfig(
         Manifest.permission.READ_CONTACTS,
         "Would you like to \nAllow Contacts Access",
         "To get started allow us access your phone logs",
