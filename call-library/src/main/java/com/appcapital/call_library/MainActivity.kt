@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         afterCallInflatedView = inflateXmlLayout(this, R.layout.after_call_display)
         setUpViewPager()
         MobileAds.initialize(this) {}
-        requestPermissions()
+        //requestPermissions()
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
                 dismissOverlay()

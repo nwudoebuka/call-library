@@ -1,19 +1,20 @@
 package com.appcapital.call_library.service
 
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.os.Handler
+import android.os.Build
 import android.os.IBinder
-import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.appcapital.call_library.aftercall.AfterCallActivity
-import android.os.Build
+import com.appcapital.call_library.newdesign.AfterCallWindow
 
 class PhoneCallService : Service() {
 
@@ -37,7 +38,7 @@ class PhoneCallService : Service() {
                     TelephonyManager.CALL_STATE_IDLE -> {
                         // Phone is idle, meaning the call has ended
                         if (wasOffhook) {
-                            Log.d(TAG, "Call has ended (IDLE)")
+                            Log.d(TAG, "${phoneNumber} Call has ended (IDLE)")
                             launchAfterCallActivity()
                             wasOffhook = false // Reset for the next call
                         }
@@ -49,9 +50,16 @@ class PhoneCallService : Service() {
                 }
             }
         }
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+        try {
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+        } catch (e: Exception){
+
+        }
+
         return START_STICKY
     }
+
+
     private fun startForegroundServiceWithNotification() {
         // Create a notification channel (required for Android 8.0 and above)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -77,19 +85,57 @@ class PhoneCallService : Service() {
         startForeground(1, notification)
     }
     private fun launchAfterCallActivity() {
-        val intent = Intent(this, AfterCallActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        startActivity(intent)
+        val afterCallWindow = AfterCallWindow(this.applicationContext)
+        afterCallWindow.show()
     }
+
+    /**
+     * Schedules a restart of the CallMonitorService using AlarmManager.
+     */
+    internal fun scheduleServiceRestart(context: Context) {
+
+        val OVERLAY_PERMISSION_REQUEST_CODE = 1001
+        // Interval for attempting service restart after an unexpected kill (e.g., 5 seconds)
+        val SERVICE_RESTART_DELAY_MS = 5000L
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, RestartServiceReceiver::class.java)
+
+        // Use a unique request code and FLAG_IMMUTABLE/FLAG_UPDATE_CURRENT for safety
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val triggerAt = System.currentTimeMillis() + SERVICE_RESTART_DELAY_MS
+
+        // Attempt to set a slightly more battery-efficient alarm for older devices
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        }
+        Log.i("AdCallOverlaySDK", "Scheduled service restart in $SERVICE_RESTART_DELAY_MS ms.")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         // Unregister the PhoneStateListener to prevent leaks
-        phoneStateListener?.let {
-            telephonyManager.listen(it, PhoneStateListener.LISTEN_NONE)
+        try {
+            phoneStateListener?.let {
+                telephonyManager.listen(it, PhoneStateListener.LISTEN_NONE)
+            }
+            phoneStateListener = null
+            Log.d(TAG, "Service destroyed, listener unregistered")
+            Log.d("CallMonitorService", "Context is null")
+            scheduleServiceRestart(this)
+
+        } catch (e: Exception){
+
         }
-        phoneStateListener = null
-        Log.d(TAG,"Service destroyed, listener unregistered")
     }
     override fun onBind(intent: Intent?): IBinder? = null
 }
+

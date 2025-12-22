@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             customView = R.layout.call_layout
         )
         setContentView(R.layout.activity_main)
-        requestPermissions()
+        //requestPermissions()
         Starter(afterCallConfig,this).displayAfterCallScreen(this);
     }
     private fun requestPermissions(){
@@ -60,6 +60,13 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 4000)
+        }
+
+        if (applicationContext.checkSelfPermission(Manifest.permission.RECEIVE_BOOT_COMPLETED)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.RECEIVE_BOOT_COMPLETED),
+                7000)
         }
     }
 }

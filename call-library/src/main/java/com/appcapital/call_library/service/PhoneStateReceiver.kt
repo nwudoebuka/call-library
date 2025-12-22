@@ -4,21 +4,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.WindowManager
-import android.os.Build
-import androidx.core.content.ContextCompat.startActivity
-import com.appcapital.call_library.MainActivity
-import com.appcapital.call_library.aftercall.AfterCallActivity
-import com.appcapital.call_library.utils.SharedPreferencesHelper
-import com.appcapital.call_library.utils.Utils
 import com.appcapital.call_library.R
-import com.appcapital.call_library.aftercall.WeatherCardFragment
+import com.appcapital.call_library.utils.SharedPreferencesHelper
 
 
 class PhoneStateReceiver : BroadcastReceiver() {

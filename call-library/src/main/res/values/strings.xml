@@ -13,4 +13,8 @@
     <string name="feels_like">Feels like</string>
     <string name="send">Send</string>
     <string name="select_quick_message">Select a quick message option</string>
+
+    <string name="vrooms_terms_agreement">By signing up, I agree to Vroom\'s <b><a href='https://www.vroomng.com/#/terms'><font color='#28094f'>Terms of Service</font></a></b> and <b><a href="https://www.vroomng.com/#/privacy"><font color='#28094f'>Privacy Policy</font></a></b></string>
+    <string name="location_disclosure_text"><b>Why We Need Your Location?</b> \n\nTo provide accurate, reliable service, we collect your location data in the background. \n\nThis helps us match you with nearby riders, give riders real-time updates on your location, and keep you informed about local demand surges. \n\nYour location data ensures that trips run smoothly and efficiently.</string>
+
 </resources>

@@ -49,6 +49,7 @@ class AfterCallActivity : AppCompatActivity() {
         checkAndRequestContactsPermission()
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
         val serviceIntent = Intent(this, PhoneCallService::class.java)

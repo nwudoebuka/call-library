@@ -36,6 +36,8 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
+
     }
     buildTypes {
         release {
@@ -151,6 +153,8 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     //Ad
     implementation("com.google.android.gms:play-services-ads:23.3.0")
+
+    implementation("com.intuit.sdp:sdp-android:1.0.6")
 }
 apply(plugin = "maven-publish")
 apply(plugin = "com.google.dagger.hilt.android")
